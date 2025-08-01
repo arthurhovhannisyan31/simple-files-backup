@@ -1,0 +1,38 @@
+name: Validate Code
+on:
+  push:
+    branches:
+      - '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-code-validation:
+    name: Rust validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Restore dependencies
+        id: restore-dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "code-validation"
+          shared-key: "-"
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -f
+          cargo update
+      - name: Validate code
+        run: |
+          cargo check --quiet
+      - name: Validate linters
+        run: |
+          ./configs/scripts/cargo-fmt.sh
+          cargo clippy --all-features --all-targets --quiet
+      - name: Validate tests
+        run: |
+          echo "Unimplemented yet..."

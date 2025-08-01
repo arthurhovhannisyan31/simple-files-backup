@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. "./configs/bash/helpers"
+
+printf "⚠️ Run pre-commit checks\n\n"
+
+validate "cargo check"

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+. "./configs/bash/colors"
+
+validate () {
+  for COMMAND in "$@"; do
+   printf "🤞 Running: $COMMAND \n"
+   if ! $COMMAND
+   then
+       printf "⛔ ${RED} Failed to check: $COMMAND \n${NC}"
+       exit 1
+   fi
+   printf "✅ ${GREEN} Success: $COMMAND \n\n${NC}"
+  done
+}

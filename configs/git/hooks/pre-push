@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. "./configs/bash/helpers"
+
+printf "⚠️ Run pre-push checks\n\n"
+
+validate "cargo check" "configs/scripts/cargo-fmt.sh" "cargo audit"
