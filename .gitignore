@@ -1,0 +1,13 @@
+#rust
+/target
+**/*.rs.bk
+
+# editor
+/.idea
+
+# dev
+.husky/_
+
+# local
+notes.txt
+.env
