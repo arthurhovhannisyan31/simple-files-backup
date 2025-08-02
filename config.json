@@ -1,0 +1,18 @@
+{
+  "source_paths": [
+    "/home/q/bin",
+    "/home/q/.config",
+    "/home/q/.ssh",
+    "/home/q/.bashrc",
+    "/home/q/.gitconfig",
+    "/home/q/.Xmodmap",
+    "/etc/fstab",
+    "/etc/default/grub",
+    "/home/q/Documents"
+  ],
+  "target_path": "/data/backup",
+  "ignore": [
+    "node_modules",
+    "target"
+  ]
+}
