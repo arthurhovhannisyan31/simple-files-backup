@@ -7,6 +7,7 @@
 
 # dev
 .husky/_
+log.txt
 
 # local
 notes.txt
