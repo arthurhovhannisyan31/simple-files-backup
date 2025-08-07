@@ -16,15 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
-      packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
       - name: Easy merge
         id: easy-merge
         uses: arthurhovhannisyan31/easy-merge-action@v1.0.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTOMATION_PAT }}
         with:
           source_branch: "develop"
           target_branch: "main"
@@ -33,9 +33,7 @@ jobs:
         id: easy-release
         uses: arthurhovhannisyan31/easy-release-action@v1.0.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTOMATION_PAT }}
         with:
           branch: "main"
       - name: Log outputs
