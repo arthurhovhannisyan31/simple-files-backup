@@ -1,4 +1,4 @@
-name: Cleanup cache for closed branch
+name: Cleanup cache
 on:
   pull_request:
     types:
