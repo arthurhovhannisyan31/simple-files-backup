@@ -3,27 +3,13 @@ name = "simple-files-backup"
 description = "Simple files backup tool written on Rust"
 authors = ["Arthur Hovhannisyan <arthurhovhannisyan31@gmail.com>"]
 repository = "https://github.com/arthurhovhannisyan31/simple-files-backup"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 license = "MIT"
 
 [dependencies]
 chrono = "0.4.41"
-# common tests
-# googletest
-# proptest
-# rstest
-
-#
-# assert_cmd
-# assert_fs
-# predicates
-
-# regex
-
-# anyhow
-# thiserror
+regex = "1.11.1"
 
 [profile.release]
 lto = true
-opt-level = 3
