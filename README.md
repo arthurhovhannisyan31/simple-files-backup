@@ -11,7 +11,10 @@ ___
 
 ___
 
+Add permissions to binary
+
 ...
+
 ## Stack
 
 ___
