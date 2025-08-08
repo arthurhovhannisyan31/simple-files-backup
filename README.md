@@ -4,6 +4,9 @@
 
 ## Overview
 
+[![main](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml/badge.svg?branch=main)](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
+
+
 ___
 ...
 
@@ -16,12 +19,6 @@ Add permissions to binary
 ...
 
 ## Stack
-
-___
-
-...
-
-## Contribution
 
 ___
 
