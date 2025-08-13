@@ -1,0 +1,15 @@
+{
+  "target_path": "/path/to/target/dir",
+  "source_paths": [
+    "/home/q/bin",
+    "/home/q/.config",
+    "/home/q/.ssh",
+    "/home/q/.bashrc",
+    "/home/q/.gitconfig",
+    "/home/q/.Xmodmap",
+    "/etc/fstab",
+    "/etc/default/grub",
+    "/home/q/Documents"
+  ],
+  "ignored_patterns": "/(node_modules|.yarn|.next|target|yarn.lock)"
+}
