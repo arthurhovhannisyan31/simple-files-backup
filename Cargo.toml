@@ -13,3 +13,4 @@ regex = "1.11.1"
 
 [profile.release]
 lto = true
+opt-level = 3

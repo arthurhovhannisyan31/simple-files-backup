@@ -17,12 +17,8 @@ fn main() -> io::Result<()> {
   let etc_path = Path::new("/etc");
   let backup_path = Path::new("/data/backup_2");
 
-  let ignore_patterns: Vec<Regex> = vec![
-    Regex::new(r"/node_modules/.+").unwrap(),
-    Regex::new(r"/.yarn/.+").unwrap(),
-    Regex::new(r"/.next/.+").unwrap(),
-    Regex::new(r"/target/.+").unwrap(),
-  ];
+  let ignore_patterns = Regex::new(r"/(node_modules|.yarn|.next|target|yarn.lock)")
+    .unwrap_or_else(|_| panic!("Failed parsing regex"));
 
   let paths: Vec<(PathBuf, PathBuf)> = vec![
     (home_path.join("bin"), backup_path.join("bin")),
@@ -52,20 +48,22 @@ fn main() -> io::Result<()> {
 
 fn traverse_paths(
   paths: Vec<(PathBuf, PathBuf)>,
-  ignore_patterns: Option<&Vec<Regex>>,
+  ignore_pattern: Option<&Regex>,
   files_count: &mut usize,
 ) -> io::Result<()> {
   for (source_path, target_path) in paths {
-    if ignore_patterns.is_some() {
-      for pattern in ignore_patterns.unwrap() {
-        if pattern.is_match(source_path.to_str().unwrap()) {
-          return Ok(());
-        }
-      }
+    if ignore_pattern.is_some()
+      && ignore_pattern
+        .unwrap()
+        .is_match(source_path.to_str().unwrap())
+    {
+      return Ok(());
     }
 
-    let error_msg = format!("Cannot locate the path {:?}", &source_path);
-    source_path.try_exists().expect(&error_msg);
+    let copy_source_path = &source_path;
+    source_path
+      .try_exists()
+      .unwrap_or_else(|_| panic!("Cannot locate the path {copy_source_path:?}"));
 
     if source_path.is_dir() {
       if target_path.exists() {
@@ -77,7 +75,7 @@ fn traverse_paths(
         &source_path,
         &target_path,
         files_count,
-        ignore_patterns,
+        ignore_pattern,
       )?;
     } else if source_path.is_file() {
       backup_file(&source_path, &target_path)?;
@@ -93,11 +91,9 @@ fn backup_file(source_path: &PathBuf, target_path: &PathBuf) -> io::Result<()> {
     remove_file(target_path)?;
   }
 
-  let create_new_error_msg = format!("Failed creating file {target_path:?}");
-  File::create_new(target_path).expect(&create_new_error_msg);
+  File::create_new(target_path).unwrap_or_else(|_| panic!("Failed creating file {target_path:?}"));
 
-  let copy_file_error_msg = format!("Failed copying file {target_path:?}");
-  copy(source_path, target_path).expect(&copy_file_error_msg);
+  copy(source_path, target_path).unwrap_or_else(|_| panic!("Failed copying file {target_path:?}"));
 
   Ok(())
 }
@@ -107,7 +103,7 @@ fn traverse_dir(
   source_path: &PathBuf,
   target_base_path: &PathBuf,
   files_count: &mut usize,
-  ignore_patterns: Option<&Vec<Regex>>,
+  ignore_pattern: Option<&Regex>,
 ) -> io::Result<()> {
   let target_relative_path = source_path
     .strip_prefix(source_base_path)
@@ -124,12 +120,12 @@ fn traverse_dir(
     let entry = entry?;
     let entry_path = entry.path();
 
-    if ignore_patterns.is_some() {
-      for pattern in ignore_patterns.unwrap() {
-        if pattern.is_match(entry_path.to_str().unwrap()) {
-          return Ok(());
-        }
-      }
+    if ignore_pattern.is_some()
+      && ignore_pattern
+        .unwrap()
+        .is_match(source_path.to_str().unwrap())
+    {
+      return Ok(());
     }
 
     if entry_path.is_dir() {
@@ -138,7 +134,7 @@ fn traverse_dir(
         &entry_path,
         target_base_path,
         files_count,
-        ignore_patterns,
+        ignore_pattern,
       )?;
     } else if let Some(file_name) = entry_path.file_name() {
       let mut target_path = new_target_path.clone();
@@ -149,9 +145,8 @@ fn traverse_dir(
         *files_count += 1;
       } else {
         let link_path = read_link(&entry_path)?;
-        let error_message = format!("Failed creating link for {target_path:?}");
-
-        symlink(link_path, target_path).expect(&error_message);
+        symlink(&link_path, &target_path)
+          .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
         *files_count += 1;
       }
     }
