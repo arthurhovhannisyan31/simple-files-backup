@@ -1,46 +1,44 @@
 mod modules;
-
+use crate::modules::structs::Config;
+use clap::Parser;
+use modules::structs::CliArgs;
+use modules::utils::config::get_parsed_config;
+use modules::utils::dirs::traverse_paths;
+use modules::utils::logs::write_logs;
 use regex::Regex;
-use std::path::{MAIN_SEPARATOR_STR, Path, PathBuf};
+use std::path::{MAIN_SEPARATOR_STR, PathBuf};
 use std::time::Instant;
 use std::{env, io};
 
-const LOG_FILE_NAME: &str = "files-backup-log.txt";
-
-use modules::helpers::{traverse_paths, write_logs};
-
 fn main() -> io::Result<()> {
   let start_time = Instant::now();
-  let cur_path = env::current_dir().unwrap_or(PathBuf::from(MAIN_SEPARATOR_STR));
-  let mut files_count: usize = 0;
+  let cli_args = CliArgs::parse();
+  let CliArgs {
+    config: config_path,
+  } = cli_args;
+  let config = get_parsed_config(config_path);
+  let Config {
+    source,
+    ignore,
+    target,
+  } = config;
 
-  let home_path = Path::new("/home/q");
-  let etc_path = Path::new("/etc");
-  let backup_path = Path::new("/data/backup_2");
-
-  let ignore_patterns = Regex::new(r"/(node_modules|.yarn|.next|target|yarn.lock)")
+  let ignore = Regex::new(ignore.as_str())
     .unwrap_or_else(|_| panic!("Failed parsing regex"));
 
-  let paths: Vec<(PathBuf, PathBuf)> = vec![
-    (home_path.join("bin"), backup_path.join("bin")),
-    (home_path.join(".config"), backup_path.join(".config")),
-    (home_path.join(".ssh"), backup_path.join(".ssh")),
-    (home_path.join(".bashrc"), backup_path.join(".bashrc")),
-    // (home_path.join(".gitconfig"), backup_path.join(".gitconfig")),
-    // (home_path.join(".Xmodmap"), backup_path.join(".Xmodmap")),
-    // (etc_path.join("fstab"), backup_path.join("fstab")),
-    // (etc_path.join("default/grub"), backup_path.join("grub")),
-    // (home_path.join("Documents"), backup_path.join("Documents")),
-  ];
+  let mut files_count: usize = 0;
+  let log_message =
+    match traverse_paths(source, Some(&ignore), target, &mut files_count) {
+      Ok(_) => format!(
+        "Backup complete in {:?}, {} files were backed up\n",
+        start_time.elapsed(),
+        files_count
+      ),
+      Err(err) => format!("{err:?}"),
+    };
 
-  let log_message = match traverse_paths(paths, Some(&ignore_patterns), &mut files_count) {
-    Ok(_) => format!(
-      "Backup complete in {:?}, {} files were backed up\n",
-      start_time.elapsed(),
-      files_count
-    ),
-    Err(err) => format!("{err:?}"),
-  };
+  let cur_path =
+    env::current_dir().unwrap_or(PathBuf::from(MAIN_SEPARATOR_STR));
 
   write_logs(&cur_path, &log_message)?;
 
