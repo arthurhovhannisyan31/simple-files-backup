@@ -5,16 +5,15 @@
 ## Overview
 
 [![main](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml/badge.svg?branch=main)](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
-
-
 ___
-...
+This is a backup tool, similar to Linux `cp` command.
 
-## Workflow
+## Usage
 
 ___
 
-Add permissions to binary
+Copy the binary.
+Build the binary.
 
 ...
 
