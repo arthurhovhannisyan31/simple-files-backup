@@ -2,26 +2,69 @@
   <h1><code>simple-files-backup</code></h1><sub>Built with 🦀</sub>
 </div>
 
+[![main](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml/badge.svg?branch=main)](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
+
 ## Overview
 
-[![main](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml/badge.svg?branch=main)](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
 ___
-This is a backup tool, similar to Linux `cp` command.
+
+This is a CLI tool for backing up files, directories and symlinks.
+
+Compatible with `Linux`, `Windows`, `Mac`.
+
+## Synopsis
+
+___
+
+- `-c, --config <CONFIG>`
+- `-h, --help`  Print help
+- `-V, --version`  Print version
+
+## Description
+
+___
+Copies list of `source` files/directories to back-up folder.
+
+Uses a json config with the following format:
+
+```
+ignore?: String,
+source: Array<String>,
+target: String
+```
+
+Source and target paths should be existing absolute files/directories paths. Ignore is a regex string which is
+Each run logs statistics to the `files-backup-log.txt` file, or creates one if missing.
 
 ## Usage
 
-___
+Copy the binary from the `bin` folder.
+Make sure the binary has sufficient rights to make directories manipulations.
 
-Copy the binary.
-Build the binary.
+Config example:
 
-...
+```
+ignore: "/(target|node_modules|.yarn|.next|yarn.lock)",
+source: [
+    "/home/<user>/.config",
+    "/home/<user>/Documents"
+],
+target: "/data/backup"
+```
+
+```shell
+    simple-files-backup -c ./config.json
+```
 
 ## Stack
 
 ___
 
-...
+- Rust
+- Chrono
+- Clap
+- Regex
+- Serde
 
 ## License
 
