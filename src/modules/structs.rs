@@ -11,8 +11,8 @@ pub struct CliArgs {
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-  pub ignore: String,
+  #[serde(default)]
+  pub ignore: Option<String>,
   pub source: Vec<PathBuf>,
-  // TODO Serde optional target: Option<PathBuf>
   pub target: PathBuf,
 }

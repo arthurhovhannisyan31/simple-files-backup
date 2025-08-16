@@ -17,18 +17,21 @@ fn main() -> io::Result<()> {
     config: config_path,
   } = cli_args;
   let config = get_parsed_config(config_path);
+
   let Config {
     source,
     ignore,
     target,
   } = config;
 
-  let ignore = Regex::new(ignore.as_str())
-    .unwrap_or_else(|_| panic!("Failed parsing regex"));
+  let ignore = ignore.map(|ignore| {
+    Regex::new(ignore.as_str())
+      .unwrap_or_else(|_| panic!("Failed parsing regex"))
+  });
 
   let mut files_count: usize = 0;
   let log_message =
-    match traverse_paths(source, Some(&ignore), target, &mut files_count) {
+    match traverse_paths(source, ignore.as_ref(), target, &mut files_count) {
       Ok(_) => format!(
         "Backup complete in {:?}, {} files were backed up\n",
         start_time.elapsed(),
