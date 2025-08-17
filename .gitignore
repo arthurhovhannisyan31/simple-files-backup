@@ -8,6 +8,8 @@
 # dev
 .husky/_
 log.txt
+config.json
+files-backup-log.txt
 
 # local
 notes.txt
