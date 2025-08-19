@@ -6,15 +6,11 @@
 
 ## Overview
 
-___
-
 This is a CLI tool for backing up files, directories and symlinks.
 
 Compatible with `Linux`, `Windows`, `Mac`.
 
 ## Synopsis
-
-___
 
 - `-c, --config <CONFIG>`
 - `-h, --help`  Print help
@@ -22,7 +18,6 @@ ___
 
 ## Description
 
-___
 Copies list of `source` files/directories to back-up folder.
 
 Uses a json config with the following format:
@@ -33,7 +28,8 @@ source: Array<String>,
 target: String
 ```
 
-Source and target paths should be existing absolute files/directories paths. Ignore is a regex string which is
+Source and target paths should be existing absolute files/directories paths. Ignore is a regex string which includes
+filename and directory name patterns to skip.
 Each run logs statistics to the `files-backup-log.txt` file, or creates one if missing.
 
 ## Usage
@@ -58,8 +54,6 @@ target: "/data/backup"
 
 ## Stack
 
-___
-
 - Rust
 - Chrono
 - Clap
@@ -68,7 +62,6 @@ ___
 
 ## License
 
-___
 Licensed under either of at your option.
 
 * Apache License, Version 2.0, [LICENSE-APACHE](./LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0
