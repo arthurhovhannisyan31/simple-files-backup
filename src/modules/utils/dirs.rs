@@ -3,7 +3,7 @@ use std::fs::{self, DirBuilder, read_link, remove_dir_all};
 use std::io;
 use std::path::PathBuf;
 
-use crate::modules::utils::files::{backup_file, symlink};
+use crate::modules::utils::files::{backup_file, backup_symlink, symlink};
 
 pub fn traverse_paths(
   source: Vec<PathBuf>,
@@ -11,10 +11,6 @@ pub fn traverse_paths(
   target_path: PathBuf,
   files_count: &mut usize,
 ) -> io::Result<()> {
-  if !target_path.exists() {
-    DirBuilder::new().recursive(true).create(&target_path)?;
-  }
-
   for source_path in source {
     if ignore.is_some()
       && ignore.unwrap().is_match(source_path.to_str().unwrap())
@@ -44,8 +40,13 @@ pub fn traverse_paths(
         files_count,
         ignore,
       )?;
-    } else if source_path.is_file() {
-      backup_file(&source_path, &file_target_path)?;
+    } else {
+      if source_path.is_file() {
+        backup_file(&source_path, &file_target_path)?;
+      } else if source_path.is_symlink() {
+        backup_symlink(&source_path, &target_path)?;
+      }
+
       *files_count += 1;
     }
   }
@@ -97,14 +98,11 @@ fn traverse_dir(
 
       if entry_path.is_file() {
         backup_file(&entry_path, &target_path)?;
-        *files_count += 1;
-      } else {
-        let link_path = read_link(&entry_path)?;
-        symlink(&link_path, &target_path).unwrap_or_else(|_| {
-          panic!("Failed creating link for {target_path:?}")
-        });
-        *files_count += 1;
+      } else if entry_path.is_symlink() {
+        backup_symlink(&entry_path, &target_path)?;
       }
+
+      *files_count += 1;
     }
   }
 

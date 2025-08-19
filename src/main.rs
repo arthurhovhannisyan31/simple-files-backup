@@ -1,14 +1,15 @@
-mod modules;
-use crate::modules::structs::Config;
 use clap::Parser;
-use modules::structs::CliArgs;
-use modules::utils::config::get_parsed_config;
-use modules::utils::dirs::traverse_paths;
-use modules::utils::logs::write_logs;
 use regex::Regex;
+use std::fs::DirBuilder;
 use std::path::{MAIN_SEPARATOR_STR, PathBuf};
 use std::time::Instant;
 use std::{env, io};
+
+pub mod modules;
+use modules::structs::{CliArgs, Config};
+use modules::utils::{
+  config::get_parsed_config, dirs::traverse_paths, logs::write_logs,
+};
 
 fn main() -> io::Result<()> {
   let start_time = Instant::now();
@@ -17,19 +18,21 @@ fn main() -> io::Result<()> {
     config: config_path,
   } = cli_args;
   let config = get_parsed_config(config_path);
-
+  let mut files_count: usize = 0;
   let Config {
     source,
     ignore,
     target,
   } = config;
-
   let ignore = ignore.map(|ignore| {
     Regex::new(ignore.as_str())
       .unwrap_or_else(|_| panic!("Failed parsing regex"))
   });
 
-  let mut files_count: usize = 0;
+  if !target.exists() {
+    DirBuilder::new().recursive(true).create(&target)?;
+  }
+
   let log_message =
     match traverse_paths(source, ignore.as_ref(), target, &mut files_count) {
       Ok(_) => format!(

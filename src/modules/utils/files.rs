@@ -1,4 +1,4 @@
-use std::fs::{File, copy, remove_file};
+use std::fs::{File, copy, read_link, remove_file};
 use std::io;
 use std::path::{Path, PathBuf};
 
@@ -15,6 +15,22 @@ pub fn backup_file(
 
   copy(source_path, target_path)
     .unwrap_or_else(|_| panic!("Failed copying file {target_path:?}"));
+
+  Ok(())
+}
+
+pub fn backup_symlink(
+  source_path: &PathBuf,
+  target_path: &PathBuf,
+) -> io::Result<()> {
+  if target_path.exists() {
+    remove_file(target_path)?;
+  }
+
+  let link_path = read_link(&source_path)?;
+
+  symlink(&link_path, &target_path)
+    .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
 
   Ok(())
 }
