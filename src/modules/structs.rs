@@ -1,4 +1,5 @@
 use clap::Parser;
+use regex::Regex;
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -10,9 +11,15 @@ pub struct CliArgs {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Config {
+pub struct CliConfig {
   #[serde(default)]
   pub ignore: Option<String>,
+  pub source: Vec<PathBuf>,
+  pub target: PathBuf,
+}
+
+pub struct BackupConfig {
+  pub ignore: Option<Regex>,
   pub source: Vec<PathBuf>,
   pub target: PathBuf,
 }

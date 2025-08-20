@@ -19,22 +19,6 @@ pub fn backup_file(
   Ok(())
 }
 
-pub fn backup_symlink(
-  source_path: &PathBuf,
-  target_path: &PathBuf,
-) -> io::Result<()> {
-  if target_path.exists() {
-    remove_file(target_path)?;
-  }
-
-  let link_path = read_link(&source_path)?;
-
-  symlink(&link_path, &target_path)
-    .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
-
-  Ok(())
-}
-
 #[cfg(windows)]
 pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
   original: P,
@@ -49,4 +33,20 @@ pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
   link: Q,
 ) -> io::Result<()> {
   std::os::unix::fs::symlink(original, link)
+}
+
+pub fn backup_symlink(
+  source_path: &PathBuf,
+  target_path: &PathBuf,
+) -> io::Result<()> {
+  if target_path.exists() {
+    remove_file(target_path)?;
+  }
+
+  let link_path = read_link(&source_path)?;
+
+  symlink(&link_path, &target_path)
+    .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
+
+  Ok(())
 }
