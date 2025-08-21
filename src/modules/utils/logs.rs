@@ -1,10 +1,15 @@
-use crate::modules::configs::constants::LOG_FILE_NAME;
-use chrono::Local;
+use std::env;
 use std::fs::File;
 use std::io::{self, Write};
-use std::path::Path;
+use std::path::{MAIN_SEPARATOR_STR, PathBuf};
 
-pub fn write_logs(cur_path: &Path, log_str: &str) -> io::Result<()> {
+use chrono::Local;
+
+use crate::modules::configs::constants::LOG_FILE_NAME;
+
+pub fn write_logs(log_str: &str) -> io::Result<()> {
+  let cur_path =
+    env::current_dir().unwrap_or(PathBuf::from(MAIN_SEPARATOR_STR));
   let mut file = File::options()
     .create(true)
     .append(true)

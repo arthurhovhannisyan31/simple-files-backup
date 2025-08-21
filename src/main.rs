@@ -1,49 +1,50 @@
-mod modules;
-use crate::modules::structs::Config;
-use clap::Parser;
-use modules::structs::CliArgs;
-use modules::utils::config::get_parsed_config;
-use modules::utils::dirs::traverse_paths;
-use modules::utils::logs::write_logs;
-use regex::Regex;
-use std::path::{MAIN_SEPARATOR_STR, PathBuf};
+use std::fs::DirBuilder;
+use std::io;
+use std::sync::mpsc;
 use std::time::Instant;
-use std::{env, io};
+
+pub mod modules;
+use modules::structs::BackupConfig;
+use modules::types::{BackupCommand, BackupResult};
+use modules::utils::config::get_backup_config;
+use modules::utils::config::get_thread_pool_size;
+use modules::utils::logs::write_logs;
+use modules::utils::threads::{backup_files, spawn_backup_threads};
 
 fn main() -> io::Result<()> {
   let start_time = Instant::now();
-  let cli_args = CliArgs::parse();
-  let CliArgs {
-    config: config_path,
-  } = cli_args;
-  let config = get_parsed_config(config_path);
-
-  let Config {
+  let mut files_count: usize = 0;
+  let threads_count = get_thread_pool_size();
+  let backup_config = get_backup_config();
+  let BackupConfig {
     source,
     ignore,
     target,
-  } = config;
+  } = backup_config;
 
-  let ignore = ignore.map(|ignore| {
-    Regex::new(ignore.as_str())
-      .unwrap_or_else(|_| panic!("Failed parsing regex"))
-  });
+  if !target.exists() {
+    DirBuilder::new().recursive(true).create(&target)?;
+  }
 
-  let mut files_count: usize = 0;
-  let log_message =
-    match traverse_paths(source, ignore.as_ref(), target, &mut files_count) {
-      Ok(_) => format!(
-        "Backup complete in {:?}, {} files were backed up\n",
-        start_time.elapsed(),
-        files_count
-      ),
-      Err(err) => format!("{err:?}"),
-    };
+  let (command_sender, command_receiver) = mpsc::channel::<BackupCommand>();
+  let (result_sender, result_receiver) = mpsc::channel::<BackupResult>();
 
-  let cur_path =
-    env::current_dir().unwrap_or(PathBuf::from(MAIN_SEPARATOR_STR));
+  spawn_backup_threads(command_receiver, result_sender, threads_count);
+  let mut log_message = backup_files(
+    command_sender,
+    result_receiver,
+    source,
+    target,
+    ignore,
+    &mut files_count,
+  );
 
-  write_logs(&cur_path, &log_message)?;
+  log_message.push_str(&format!(
+    "Backup complete in {:?}, {} files were backed up\n",
+    start_time.elapsed(),
+    files_count
+  ));
 
+  write_logs(&log_message)?;
   Ok(())
 }
