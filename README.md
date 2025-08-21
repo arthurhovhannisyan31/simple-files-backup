@@ -18,9 +18,22 @@ Compatible with `Linux`, `Windows`, `Mac`.
 
 ## Description
 
-Copies list of `source` files/directories to back-up folder.
+Copies list of source files/directories to back-up folder.
 
-Uses a json config with the following format:
+The backup operations are distributed between several system threads.
+Main thread does fs traversal, sends backup commands and logs results.
+Spawned threads receive backup commands, copy files and submit results.
+Communication between threads based on [MPSC](https://doc.rust-lang.org/std/sync/mpsc/index.html) channels which allows
+threads receive commands in order, excluding job duplication.
+
+![img.png](./static/img/system_design.png)
+
+## Usage
+
+Copy the binary from the `bin` folder.
+Make sure the binary has sufficient rights to make directories manipulations.
+
+Add a json config with the following format:
 
 ```
 ignore?: String,
@@ -31,11 +44,6 @@ target: String
 Source and target paths should be existing absolute files/directories paths. Ignore is a regex string which includes
 filename and directory name patterns to skip.
 Each run logs statistics to the `files-backup-log.txt` file, or creates one if missing.
-
-## Usage
-
-Copy the binary from the `bin` folder.
-Make sure the binary has sufficient rights to make directories manipulations.
 
 Config example:
 
