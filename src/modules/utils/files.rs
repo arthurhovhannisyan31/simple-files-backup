@@ -43,9 +43,9 @@ pub fn backup_symlink(
     remove_file(target_path)?;
   }
 
-  let link_path = read_link(&source_path)?;
+  let link_path = read_link(source_path)?;
 
-  symlink(&link_path, &target_path)
+  symlink(&link_path, target_path)
     .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
 
   Ok(())
