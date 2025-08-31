@@ -1,8 +1,8 @@
+use regex::Regex;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
-
-use regex::Regex;
+use std::thread::JoinHandle;
 
 use crate::modules::types::{BackupCommand, BackupResult};
 use crate::modules::utils::dirs::traverse_files;
@@ -18,8 +18,9 @@ pub fn spawn_backup_threads(
   for _ in 0..threads_count {
     let result_sender = result_sender.clone();
     let command_receiver = command_receiver.clone();
+    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
 
-    thread::spawn(move || {
+    thread_handles.push(thread::spawn(move || {
       loop {
         let command_result = {
           let receiver_guard = command_receiver.lock().unwrap();
@@ -43,7 +44,11 @@ pub fn spawn_backup_threads(
 
         result_sender.send(backup_result).unwrap();
       }
-    });
+    }));
+
+    for handle in thread_handles {
+      handle.join().unwrap();
+    }
   }
 }
 
