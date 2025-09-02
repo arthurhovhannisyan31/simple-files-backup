@@ -20,6 +20,7 @@ fn main() -> io::Result<()> {
     source,
     ignore,
     target,
+    log_path,
   } = backup_config;
 
   if !target.exists() {
@@ -45,6 +46,6 @@ fn main() -> io::Result<()> {
     files_count
   ));
 
-  write_logs(&log_message)?;
+  write_logs(log_path, &log_message)?;
   Ok(())
 }

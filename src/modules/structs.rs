@@ -16,10 +16,12 @@ pub struct CliConfig {
   pub ignore: Option<String>,
   pub source: Vec<PathBuf>,
   pub target: PathBuf,
+  pub log: Option<PathBuf>,
 }
 
 pub struct BackupConfig {
   pub ignore: Option<Regex>,
   pub source: Vec<PathBuf>,
   pub target: PathBuf,
+  pub log_path: PathBuf,
 }
