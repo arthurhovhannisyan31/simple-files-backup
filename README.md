@@ -39,21 +39,23 @@ Add a json config with the following format:
 ignore?: String,
 source: Array<String>,
 target: String
+log?: String
 ```
 
-Source and target paths should be existing absolute files/directories paths. Ignore is a regex string which includes
-filename and directory name patterns to skip.
-Each run logs statistics to the `files-backup-log.txt` file, or creates one if missing.
+The `source` and `target` paths should be existing absolute files/directories paths. Ignore is a regex string which
+includes
+filename and directory name patterns to skip. Each run logs statistics to the `log` file, or creates one if missing.
 
 Config example:
 
 ```
-ignore: "/(target|node_modules|.yarn|.next|yarn.lock)",
-source: [
+"ignore": "/(target|node_modules|.yarn|.next|yarn.lock)",
+"source": [
     "/home/<user>/.config",
     "/home/<user>/Documents"
 ],
-target: "/data/backup"
+"target": "/data/backup",
+"log": "/home/<user>/log"
 ```
 
 ```shell

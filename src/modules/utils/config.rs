@@ -1,11 +1,11 @@
-use std::path::PathBuf;
-use std::{fs, thread};
+use std::path::{MAIN_SEPARATOR_STR, PathBuf};
+use std::{env, fs, thread};
 
 use clap::Parser;
 use regex::Regex;
 
 use crate::modules::configs::constants::{
-  THREAD_POOL_LIMIT, THREAD_POOL_SHARE_OF_CPU_THREADS,
+  LOG_FILE_NAME, THREAD_POOL_LIMIT, THREAD_POOL_SHARE_OF_CPU_THREADS,
 };
 use crate::modules::structs::{BackupConfig, CliArgs, CliConfig};
 
@@ -33,7 +33,14 @@ pub fn get_backup_config() -> BackupConfig {
     source,
     ignore,
     target,
+    log,
   } = config;
+
+  let default_log_path = env::current_dir()
+    .unwrap_or(PathBuf::from(MAIN_SEPARATOR_STR))
+    .join(LOG_FILE_NAME);
+  let log_path = log.unwrap_or(default_log_path);
+
   let ignore = ignore.map(|ignore| {
     Regex::new(ignore.as_str())
       .unwrap_or_else(|_| panic!("Failed parsing regex"))
@@ -43,6 +50,7 @@ pub fn get_backup_config() -> BackupConfig {
     source,
     ignore,
     target,
+    log_path,
   }
 }
 

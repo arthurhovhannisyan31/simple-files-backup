@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - '*'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,14 +16,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - run: rustup toolchain install stable --profile minimal
-      - name: Restore dependencies
-        id: restore-dependencies
-        uses: Swatinem/rust-cache@v2
+      - name: Restore cargo cache
+        uses: actions/cache@v4
         with:
-          prefix-key: "package-audit"
-          shared-key: "-"
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - name: Setup stable Rust version
+        run: |
+          rustup toolchain install stable --profile minimal
       - name: Install Cargo audit
         run: |
           cargo install cargo-audit
