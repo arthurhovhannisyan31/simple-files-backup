@@ -1,7 +1,8 @@
+use std::path::PathBuf;
+
 use clap::Parser;
 use regex::Regex;
 use serde::Deserialize;
-use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(version, about, next_line_help = true)]

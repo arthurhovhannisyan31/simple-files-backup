@@ -1,12 +1,8 @@
-use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
-use regex::Regex;
-
+use crate::modules::files::{backup_file, backup_symlink};
 use crate::modules::types::{BackupCommand, BackupResult};
-use crate::modules::utils::dirs::traverse_files;
-use crate::modules::utils::files::{backup_file, backup_symlink};
 
 pub fn spawn_backup_threads(
   command_receiver: mpsc::Receiver<BackupCommand>,
@@ -45,34 +41,4 @@ pub fn spawn_backup_threads(
       }
     });
   }
-}
-
-pub fn backup_files(
-  command_sender: mpsc::Sender<BackupCommand>,
-  result_receiver: mpsc::Receiver<BackupResult>,
-  source: Vec<PathBuf>,
-  target: PathBuf,
-  ignore: Option<Regex>,
-  files_count: &mut usize,
-) -> String {
-  let mut error_message = String::new();
-
-  if let Err(err) =
-    traverse_files(command_sender, source, target, ignore.as_ref())
-  {
-    error_message.push_str(&err.to_string());
-  }
-
-  for msg in result_receiver.iter() {
-    match msg {
-      Ok(_) => {
-        *files_count += 1;
-      }
-      Err(err) => {
-        error_message.push_str(&format!("Failed copying: {:?}\n", err));
-      }
-    }
-  }
-
-  error_message
 }

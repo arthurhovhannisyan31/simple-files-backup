@@ -4,7 +4,7 @@ use std::{env, fs, thread};
 use clap::Parser;
 use regex::Regex;
 
-use crate::modules::configs::constants::{
+use crate::modules::constants::{
   LOG_FILE_NAME, THREAD_POOL_LIMIT, THREAD_POOL_SHARE_OF_CPU_THREADS,
 };
 use crate::modules::structs::{BackupConfig, CliArgs, CliConfig};
