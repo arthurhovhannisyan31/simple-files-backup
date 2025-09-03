@@ -1,10 +1,11 @@
+use criterion::{Criterion, criterion_group, criterion_main};
+use regex::Regex;
+use std::hint::black_box;
 use std::path::PathBuf;
 use std::sync::mpsc;
 
-use criterion::{Criterion, criterion_group, criterion_main};
-
+use simple_files_backup::modules::traverse::traverse_sources;
 use simple_files_backup::modules::types::BackupCommand;
-use simple_files_backup::modules::utils::dirs::traverse_files;
 
 pub fn benchmark(c: &mut Criterion) {
   let (tx, _rx) = mpsc::channel::<BackupCommand>();
@@ -15,19 +16,20 @@ pub fn benchmark(c: &mut Criterion) {
     PathBuf::from("/home/q/bin"),
     PathBuf::from("/home/q/.config"),
     PathBuf::from("/home/q/.ssh"),
-    // PathBuf::from("/home/q/Documents"),
   ];
   let target_path = PathBuf::from("/data/backup_2/");
-  let mut group = c.benchmark_group("traverse_files");
+  let ignore_pattern =
+    Some(Regex::new("/(node_modules|.yarn|.next|target|yarn.lock)").unwrap());
 
+  let mut group = c.benchmark_group("traverse_files");
   group.bench_function("traverse_files", |bencher| {
     bencher.iter(|| {
-      traverse_files(
+      black_box(traverse_sources(
         tx.clone(),
         source_paths.clone(),
         target_path.clone(),
-        None,
-      )
+        ignore_pattern.as_ref(),
+      ))
     });
   });
   group.finish();

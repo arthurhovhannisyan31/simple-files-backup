@@ -7,7 +7,7 @@ use regex::Regex;
 
 use crate::modules::types::BackupCommand;
 
-pub fn traverse_files(
+pub fn traverse_sources(
   command_sender: mpsc::Sender<BackupCommand>,
   source: Vec<PathBuf>,
   target: PathBuf,
