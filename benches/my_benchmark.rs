@@ -19,7 +19,7 @@ pub fn benchmark(c: &mut Criterion) {
   ];
   let target_path = PathBuf::from("/data/backup_2/");
   let ignore_pattern =
-    Some(Regex::new("/(node_modules|.yarn|.next|target|yarn.lock)").unwrap());
+    Some(Regex::new(r"/(node_modules|.yarn|.next|target|yarn.lock)").unwrap());
 
   let mut group = c.benchmark_group("traverse_files");
   group.bench_function("traverse_files", |bencher| {
