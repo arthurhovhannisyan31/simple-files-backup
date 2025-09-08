@@ -49,7 +49,7 @@ filename and directory name patterns to skip. Each run logs statistics to the `l
 Config example:
 
 ```
-"ignore": "/(target|node_modules|.yarn|.next|yarn.lock)",
+"ignore": "/(node_modules|.yarn|.next|target|yarn.lock)",
 "source": [
     "/home/<user>/.config",
     "/home/<user>/Documents"
