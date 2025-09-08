@@ -18,7 +18,7 @@ Compatible with `Linux`, `Windows`, `Mac`.
 
 ## Description
 
-Copies list of source files/directories to back-up folder.
+Copies list of source files/directories to back-up folder in multithreaded mode.
 
 The backup operations are distributed between several system threads.
 Main thread does fs traversal, sends backup commands and logs results.
