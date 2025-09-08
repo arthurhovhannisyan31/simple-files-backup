@@ -13,39 +13,41 @@ pub fn traverse_sources(
   target: PathBuf,
   ignore: Option<&Regex>,
 ) -> io::Result<()> {
-  for source_path in source {
+  for entry_path in source {
     if ignore.is_some()
-      && ignore.unwrap().is_match(source_path.to_str().unwrap())
+      && ignore.unwrap().is_match(entry_path.to_str().unwrap())
     {
       return Ok(());
     }
 
-    let copy_source_path = &source_path;
-    source_path.try_exists().unwrap_or_else(|_| {
+    let copy_source_path = &entry_path;
+    entry_path.try_exists().unwrap_or_else(|_| {
       panic!("Cannot locate the path {copy_source_path:?}")
     });
 
-    let file_name = source_path
+    let file_name = entry_path
       .file_name()
       .expect("Failed reading file/dir name");
     let file_target_path = target.join(file_name);
 
-    if source_path.is_dir() {
-      if file_target_path.exists() {
-        remove_dir_all(&file_target_path)?;
-      }
+    if let Ok(meta) = fs::symlink_metadata(&entry_path) {
+      if meta.is_dir() {
+        if file_target_path.exists() {
+          remove_dir_all(&file_target_path)?;
+        }
 
-      traverse_dir(
-        command_sender.clone(),
-        &source_path,
-        &source_path,
-        &file_target_path,
-        ignore,
-      )?;
-    } else {
-      command_sender
-        .send((source_path, file_target_path))
-        .expect("Failed sending backup command");
+        traverse_dir(
+          command_sender.clone(),
+          &entry_path,
+          &entry_path,
+          &file_target_path,
+          ignore,
+        )?;
+      } else {
+        command_sender
+          .send((entry_path, file_target_path))
+          .expect("Failed sending backup command");
+      }
     }
   }
 
@@ -75,26 +77,28 @@ fn traverse_dir(
     let entry_path = entry.path();
 
     if ignore.is_some()
-      && ignore.unwrap().is_match(source_path.to_str().unwrap())
+      && ignore.unwrap().is_match(entry_path.to_str().unwrap())
     {
-      return Ok(());
+      continue;
     }
 
-    if entry_path.is_dir() {
-      traverse_dir(
-        command_sender.clone(),
-        source_base_path,
-        &entry_path,
-        target_base_path,
-        ignore,
-      )?;
-    } else if let Some(file_name) = entry_path.file_name() {
-      let mut target_path = new_target_path.clone();
-      target_path.push(file_name);
+    if let Ok(meta) = fs::symlink_metadata(&entry_path) {
+      if meta.is_dir() {
+        traverse_dir(
+          command_sender.clone(),
+          source_base_path,
+          &entry_path,
+          target_base_path,
+          ignore,
+        )?;
+      } else if let Some(file_name) = entry_path.file_name() {
+        let mut target_path = new_target_path.clone();
+        target_path.push(file_name);
 
-      command_sender
-        .send((entry_path, target_path))
-        .expect("Failed sending backup command");
+        command_sender
+          .send((entry_path, target_path))
+          .expect("Failed sending backup command");
+      }
     }
   }
 

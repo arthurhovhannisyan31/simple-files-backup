@@ -27,7 +27,7 @@ pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
   std::os::windows::fs::symlink_file(original, link)
 }
 
-#[cfg(unix)]
+#[cfg(not(windows))]
 pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
   original: P,
   link: Q,
@@ -45,7 +45,7 @@ pub fn backup_symlink(
 
   let link_path = read_link(source_path)?;
 
-  symlink(&link_path, target_path)
+  symlink(link_path, target_path)
     .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
 
   Ok(())

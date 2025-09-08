@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex, mpsc};
-use std::thread;
+use std::{fs, thread};
 
 use crate::modules::files::{backup_file, backup_symlink};
 use crate::modules::types::{BackupCommand, BackupResult};
@@ -26,16 +26,21 @@ pub fn spawn_backup_threads(
         };
 
         let mut backup_result: BackupResult = Ok(());
+        let metadata = fs::symlink_metadata(&source_path);
 
-        if source_path.is_file() {
-          if let Err(err) = backup_file(&source_path, &target_path) {
-            backup_result = Err(err.to_string());
+        if let Ok(meta) = metadata {
+          if meta.is_symlink() {
+            if let Err(err) = backup_symlink(&source_path, &target_path) {
+              backup_result = Err(err.to_string());
+            }
+          } else if meta.is_file() {
+            if let Err(err) = backup_file(&source_path, &target_path) {
+              backup_result = Err(err.to_string());
+            }
           }
-        } else if source_path.is_symlink() {
-          if let Err(err) = backup_symlink(&source_path, &target_path) {
-            backup_result = Err(err.to_string());
-          }
-        }
+        } else {
+          backup_result = Err(metadata.unwrap_err().to_string());
+        };
 
         result_sender.send(backup_result).unwrap();
       }
