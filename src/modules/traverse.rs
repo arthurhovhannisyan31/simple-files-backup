@@ -20,12 +20,11 @@ pub fn traverse_sources(
       return Ok(());
     }
 
-    let copy_source_path = &entry_path;
-    entry_path.try_exists().unwrap_or_else(|_| {
-      panic!("Cannot locate the path {copy_source_path:?}")
-    });
+    entry_path
+      .try_exists()
+      .unwrap_or_else(|_| panic!("Cannot locate the path {entry_path:?}"));
 
-    let file_name = entry_path
+    let file_name = &entry_path
       .file_name()
       .expect("Failed reading file/dir name");
     let file_target_path = target.join(file_name);
