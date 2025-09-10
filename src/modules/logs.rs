@@ -8,8 +8,10 @@ pub fn write_logs(log_path: PathBuf, log_str: &str) -> io::Result<()> {
   let mut file = File::options()
     .create(true)
     .append(true)
-    .open(log_path)
-    .expect("Failed reading/creating log file");
+    .open(&log_path)
+    .unwrap_or_else(|_| {
+      panic!("Failed reading/creating log file: {log_path:?}")
+    });
 
   let mut new_content = String::from("----\n");
   new_content.push_str(format!("{}\n", Local::now().to_rfc2822()).as_str());

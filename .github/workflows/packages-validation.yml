@@ -31,7 +31,9 @@ jobs:
           rustup toolchain install stable --profile minimal
       - name: Install Cargo audit
         run: |
-          cargo install cargo-audit
-      - name: Validate code
+          if ! which cargo-audit; then
+            cargo install cargo-audit
+          fi
+      - name: Validate packages
         run: |
           cargo audit      

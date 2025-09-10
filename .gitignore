@@ -8,7 +8,7 @@
 # dev
 .husky/_
 log.txt
-**/*config.json
+**/*config*.json
 files-backup-log.txt
 
 # local

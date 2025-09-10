@@ -18,7 +18,7 @@ Compatible with `Linux`, `Windows`, `Mac`.
 
 ## Description
 
-Copies list of source files/directories to back-up folder.
+Copies list of source files/directories to back-up folder in multithreaded mode.
 
 The backup operations are distributed between several system threads.
 Main thread does fs traversal, sends backup commands and logs results.
@@ -49,7 +49,7 @@ filename and directory name patterns to skip. Each run logs statistics to the `l
 Config example:
 
 ```
-"ignore": "/(target|node_modules|.yarn|.next|yarn.lock)",
+"ignore": "/(node_modules|.yarn|.next|target|yarn.lock)",
 "source": [
     "/home/<user>/.config",
     "/home/<user>/Documents"
