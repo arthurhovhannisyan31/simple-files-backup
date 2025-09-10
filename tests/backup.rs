@@ -1,12 +1,14 @@
 mod helpers;
+mod stubs;
 
 #[cfg(test)]
-mod test {
+mod test_backup {
   use assert_fs::prelude::*;
   use predicates::Predicate;
   use regex::Regex;
 
-  use crate::helpers::setup_dirs;
+  use crate::helpers::{setup_dirs, setup_files};
+  use crate::stubs::{get_file_path_stubs, get_ignored_file_path_stubs};
   use simple_files_backup::modules::backup::backup;
 
   const THREADS_COUNT: usize = 2;
@@ -15,20 +17,9 @@ mod test {
   fn test_backup_files() {
     let (root_dir, source_dir, target_dir) = setup_dirs();
     let mut files_count: usize = 0;
-    let file_paths = vec![
-      "test.txt",
-      "subdir/test.txt",
-      "subdir/subdir/test.txt",
-      "subdir/subdir/subdir/test.txt",
-      "subdir/subdir/subdir/subdir/test.txt",
-      "subdir/subdir/subdir/subdir/subdir/test.txt",
-      "subdir/subdir/subdir/subdir/subdir/subdir/test.txt",
-      "subdir/subdir/subdir/subdir/subdir/subdir/subdir/test.txt",
-    ];
+    let file_paths = get_file_path_stubs();
 
-    for file_path in &file_paths {
-      source_dir.child(file_path).touch().unwrap();
-    }
+    setup_files(&source_dir, &file_paths);
 
     let source_paths = vec![source_dir.to_path_buf()];
     let target_path = target_dir.to_path_buf();
@@ -55,26 +46,20 @@ mod test {
   fn test_backup_ignore_pattern() {
     let (root_dir, source_dir, target_dir) = setup_dirs();
     let mut files_count: usize = 0;
-    let file_paths = vec![
-      "yarn.lock",
-      "subdir/yarn.lock",
-      "node_modules",
-      "subdir/node_modules",
-      ".yarn",
-      "subdir/.yarn",
-      ".next",
-      "subdir/.next",
-      "target",
-      "subdir/target",
-      "test.txt",
-      "subdir/test.txt",
-    ];
+
+    let mut file_paths: Vec<&str> = vec![];
+    let mut valid_file_paths: Vec<&str> = get_file_path_stubs();
+    let mut ignored_file_paths = get_ignored_file_path_stubs();
+
+    let valid_file_paths_len = valid_file_paths.len();
+
+    file_paths.append(&mut valid_file_paths);
+    file_paths.append(&mut ignored_file_paths);
+
     let ignore_pattern =
       Some(Regex::new(r"(node_modules|.yarn|.next|target|yarn.lock)").unwrap());
 
-    for file_path in &file_paths {
-      source_dir.child(file_path).touch().unwrap();
-    }
+    setup_files(&source_dir, &file_paths);
 
     for file_path in &file_paths {
       assert!(
@@ -104,7 +89,7 @@ mod test {
       predicates::path::exists()
         .eval(&target_folder_path.join("subdir").join("test.txt"))
     );
-    assert_eq!(files_count, 2);
+    assert_eq!(files_count, valid_file_paths_len);
     root_dir.close().unwrap();
   }
 
