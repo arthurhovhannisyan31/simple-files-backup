@@ -10,6 +10,7 @@ mod test_bin {
   use crate::helpers::{setup_config_file, setup_dirs, setup_files};
   use crate::stubs::get_file_path_stubs;
 
+  #[cfg(unix)]
   #[test]
   fn test_valid_setup() {
     let cur_dir = env::current_dir().unwrap();
@@ -36,6 +37,7 @@ mod test_bin {
     root_dir.close().unwrap();
   }
 
+  #[cfg(unix)]
   #[test]
   fn test_missing_config_file() {
     let cur_dir = env::current_dir().unwrap();
@@ -52,4 +54,5 @@ mod test_bin {
 
     root_dir.close().unwrap();
   }
+  // TODO Write os specific tests
 }
