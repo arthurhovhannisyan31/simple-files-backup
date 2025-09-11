@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,6 +39,9 @@ jobs:
         run: |
           ./configs/scripts/cargo-fmt.sh
           cargo clippy --all-features --all-targets --quiet
+      - name: Build target
+        run: |
+          cargo build --release
       - name: Validate tests
         run: |
           cargo test
