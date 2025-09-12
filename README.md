@@ -7,8 +7,11 @@
 ## Overview
 
 This is a CLI tool for backing up files, directories and symlinks.
+It is Compatible with `Linux`, `Windows`, `Mac`.
 
-Compatible with `Linux`, `Windows`, `Mac`.
+Please
+see [code validation tests](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
+for details.
 
 ## Synopsis
 
@@ -30,7 +33,9 @@ threads receive commands in order, excluding job duplication.
 
 ## Usage
 
-Copy the binary from the `bin` folder.
+Please find the latest build binaries in
+the [GH Releases](https://github.com/arthurhovhannisyan31/simple-files-backup/releases).
+Download archived binary for your OS and use the `simple-files-backup` file from the `target/release` folder.
 Make sure the binary has sufficient rights to make directories manipulations.
 
 Add a json config with the following format:

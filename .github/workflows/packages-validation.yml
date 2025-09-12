@@ -1,4 +1,4 @@
-name: Validate Packages
+name: Package validation
 on:
   push:
     branches:

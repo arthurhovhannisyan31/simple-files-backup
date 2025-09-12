@@ -1,0 +1,41 @@
+name: Upload binaries
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    name: Build target
+    permissions:
+      contents: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        include:
+          - os: windows-latest
+            label: windows
+            extension: '.exe'
+          - os: ubuntu-latest
+            label: ubuntu
+          - os: macos-latest
+            label: macos
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Cargo
+        uses: ./.github/actions/setup-cargo
+      - name: Build target
+        run: |
+          cargo build --release
+      - name: Validate tests
+        run: |
+          cargo test
+      - name: Archive to preserve executable permissions
+        run: |
+          tar -cvf simple-files-backup-${{ matrix.label }}.tar ./target/release/simple-files-backup${{ matrix.extension }}
+      - name: Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload ${{github.event.release.tag_name}} simple-files-backup-${{ matrix.label }}.tar

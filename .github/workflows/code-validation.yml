@@ -1,4 +1,4 @@
-name: Validate Code
+name: Code validation
 on:
   push:
     branches:
@@ -9,29 +9,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  rust-code-validation:
-    name: Rust validation
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+  code-validation:
+    name: Code validation
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Restore cargo cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-      - name: Install dependencies
-        run: |
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -f
-          cargo update
+      - name: Setup Cargo
+        uses: ./.github/actions/setup-cargo
       - name: Validate code
         run: |
           cargo check --quiet
@@ -39,6 +24,21 @@ jobs:
         run: |
           ./configs/scripts/cargo-fmt.sh
           cargo clippy --all-features --all-targets --quiet
+      - name: Validate unit tests
+        run: |
+          cargo test test_backup
+  build:
+    name: Build target
+    needs: code-validation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Cargo
+        uses: ./.github/actions/setup-cargo
       - name: Build target
         run: |
           cargo build --release
