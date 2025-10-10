@@ -153,7 +153,7 @@ mod test_backup {
     root_dir.close().unwrap();
   }
 
-  #[cfg(not(windows))]
+  #[cfg(not(windows))] // TODO Fix, fails on windows ¯\_(°ペ)_/¯
   #[test]
   fn test_backup_dir_symlink() {
     let (root_dir, source_dir, target_dir) = setup_dirs();
@@ -187,7 +187,6 @@ mod test_backup {
       .join(source_dir.components().next_back().unwrap())
       .join(link_file_name);
 
-    // TODO Fix, fails on windows
     assert!(predicates::path::exists().eval(&target_link_path));
     assert!(predicates::path::is_symlink().eval(&target_link_path));
     root_dir.close().unwrap();

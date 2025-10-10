@@ -6,6 +6,7 @@ pub mod modules;
 use modules::backup::backup;
 use modules::config::get_backup_config;
 use modules::config::get_thread_pool_size;
+use modules::constants::FSErrors;
 use modules::logs::write_logs;
 use modules::structs::BackupConfig;
 
@@ -23,7 +24,16 @@ fn main() -> io::Result<()> {
   } = backup_config;
 
   if !target.exists() {
-    DirBuilder::new().recursive(true).create(&target)?;
+    let create_dir_result = DirBuilder::new()
+      .recursive(true)
+      .create(&target)
+      .map_err(|err| FSErrors::CreateFileError {
+        target_path: String::from(target.to_str().unwrap()),
+        err,
+      });
+    if let Err(err) = create_dir_result {
+      write_logs(&log_path, &err.to_string());
+    }
   }
 
   let mut log_message =
@@ -35,6 +45,6 @@ fn main() -> io::Result<()> {
     files_count
   ));
 
-  write_logs(log_path, &log_message)?;
+  write_logs(&log_path, &log_message);
   Ok(())
 }

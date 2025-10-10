@@ -31,7 +31,7 @@ pub fn backup(
         *files_count += 1;
       }
       Err(err) => {
-        error_message.push_str(&format!("Failed copying: {:?}\n", err));
+        error_message.push_str(&format!("{:?}\n", err));
       }
     }
   }
