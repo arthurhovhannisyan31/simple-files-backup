@@ -2,19 +2,28 @@ use std::fs::{File, copy, read_link, remove_file};
 use std::io;
 use std::path::{Path, PathBuf};
 
+use crate::modules::constants::FSErrors;
+
 pub fn backup_file(
   source_path: &PathBuf,
   target_path: &PathBuf,
-) -> io::Result<()> {
+) -> Result<(), FSErrors> {
   if target_path.exists() {
-    remove_file(target_path)?;
+    remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
+      source_path: String::from(target_path.to_str().unwrap()),
+      err,
+    })?;
   }
+  File::create_new(target_path).map_err(|err| FSErrors::CreateFileError {
+    target_path: String::from(source_path.to_str().unwrap()),
+    err,
+  })?;
 
-  File::create_new(target_path)
-    .unwrap_or_else(|_| panic!("Failed creating file {target_path:?}"));
-
-  copy(source_path, target_path)
-    .unwrap_or_else(|_| panic!("Failed copying file {target_path:?}"));
+  copy(source_path, target_path).map_err(|err| FSErrors::CopyFileError {
+    source_path: String::from(source_path.to_str().unwrap()),
+    target_path: String::from(target_path.to_str().unwrap()),
+    err,
+  })?;
 
   Ok(())
 }
@@ -38,15 +47,27 @@ pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
 pub fn backup_symlink(
   source_path: &PathBuf,
   target_path: &PathBuf,
-) -> io::Result<()> {
+) -> Result<(), FSErrors> {
   if target_path.exists() {
-    remove_file(target_path)?;
+    remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
+      source_path: String::from(target_path.to_str().unwrap()),
+      err,
+    })?
   }
 
-  let link_path = read_link(source_path)?;
+  let link_path =
+    read_link(source_path).map_err(|err| FSErrors::ReadFileError {
+      source_path: String::from(target_path.to_str().unwrap()),
+      err,
+    })?;
 
-  symlink(link_path, target_path)
-    .unwrap_or_else(|_| panic!("Failed creating link for {target_path:?}"));
+  symlink(link_path, target_path).map_err(|err| {
+    FSErrors::CreateSymlinkError {
+      source_path: String::from(source_path.to_str().unwrap()),
+      target_path: String::from(target_path.to_str().unwrap()),
+      err,
+    }
+  })?;
 
   Ok(())
 }
