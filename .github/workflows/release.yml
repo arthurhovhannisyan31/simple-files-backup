@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
       - name: Easy merge
         id: easy-merge
-        uses: arthurhovhannisyan31/easy-merge-action@v1.0.1
+        uses: arthurhovhannisyan31/easy-merge-action@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTOMATION_PAT }}
         with:
