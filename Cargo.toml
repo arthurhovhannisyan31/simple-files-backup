@@ -20,7 +20,7 @@ serde_json = "1.0.149"
 thiserror = "2.0.18"
 
 [dev-dependencies]
-criterion = "0.8.1"
+criterion = "0.8.2"
 
 [profile.release]
 lto = true
