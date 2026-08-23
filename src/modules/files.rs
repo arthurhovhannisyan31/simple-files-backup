@@ -10,18 +10,14 @@ pub fn backup_file(
 ) -> Result<(), FSErrors> {
   if target_path.exists() {
     remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
-      source_path: String::from(target_path.to_str().unwrap()),
+      source_path: target_path.to_string_lossy().into_owned(),
       err,
     })?;
   }
-  File::create_new(target_path).map_err(|err| FSErrors::CreateFileError {
-    target_path: String::from(source_path.to_str().unwrap()),
-    err,
-  })?;
 
   copy(source_path, target_path).map_err(|err| FSErrors::CopyFileError {
-    source_path: String::from(source_path.to_str().unwrap()),
-    target_path: String::from(target_path.to_str().unwrap()),
+    source_path: source_path.to_string_lossy().into_owned(),
+    target_path: target_path.to_string_lossy().into_owned(),
     err,
   })?;
 
@@ -50,21 +46,21 @@ pub fn backup_symlink(
 ) -> Result<(), FSErrors> {
   if target_path.exists() {
     remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
-      source_path: String::from(target_path.to_str().unwrap()),
+      source_path: target_path.to_string_lossy().into_owned(),
       err,
     })?
   }
 
   let link_path =
     read_link(source_path).map_err(|err| FSErrors::ReadFileError {
-      source_path: String::from(target_path.to_str().unwrap()),
+      source_path: source_path.to_string_lossy().into_owned(),
       err,
     })?;
 
   symlink(link_path, target_path).map_err(|err| {
     FSErrors::CreateSymlinkError {
-      source_path: String::from(source_path.to_str().unwrap()),
-      target_path: String::from(target_path.to_str().unwrap()),
+      source_path: source_path.to_string_lossy().into_owned(),
+      target_path: target_path.to_string_lossy().into_owned(),
       err,
     }
   })?;

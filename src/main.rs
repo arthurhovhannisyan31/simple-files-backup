@@ -28,7 +28,7 @@ fn main() -> io::Result<()> {
       .recursive(true)
       .create(&target)
       .map_err(|err| FSErrors::CreateFileError {
-        target_path: String::from(target.to_str().unwrap()),
+        target_path: target.to_string_lossy().into_owned(),
         err,
       });
     if let Err(err) = create_dir_result {

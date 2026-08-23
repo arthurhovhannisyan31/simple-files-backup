@@ -16,7 +16,7 @@ pub fn get_parsed_config(config_path: PathBuf) -> CliConfig {
     panic!(
       "{:#?}",
       FSErrors::NotFound {
-        source_path: String::from(config_path.to_str().unwrap()),
+        source_path: config_path.to_string_lossy().into_owned(),
         err: io::Error::new(ErrorKind::NotFound, "Failed reading config file")
       }
     );
@@ -27,7 +27,7 @@ pub fn get_parsed_config(config_path: PathBuf) -> CliConfig {
       panic!(
         "{:#?}",
         FSErrors::ReadFileError {
-          source_path: String::from(config_path.to_str().unwrap()),
+          source_path: config_path.to_string_lossy().into_owned(),
           err
         }
       );

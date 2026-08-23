@@ -20,10 +20,12 @@ pub fn traverse_sources(
       && ignore.unwrap().is_match(entry_path.to_str().unwrap())
     {
       return Ok(());
+      if ignore.is_match(&entry_path.to_string_lossy()) {
     }
 
     entry_path.try_exists().map_err(|err| FSErrors::NotFound {
       source_path: String::from(entry_path.to_str().unwrap()),
+      source_path: entry_path.to_string_lossy().into_owned(),
       err,
     })?;
 
@@ -31,7 +33,7 @@ pub fn traverse_sources(
       &entry_path
         .file_name()
         .ok_or_else(|| FSErrors::ReadFileError {
-          source_path: String::from(entry_path.to_str().unwrap()),
+          source_path: entry_path.to_string_lossy().into_owned(),
           err: io::Error::new(
             ErrorKind::InvalidFilename,
             "Failed reading file/dir name",
@@ -49,6 +51,8 @@ pub fn traverse_sources(
             }
           })?;
         }
+        source_path: entry_path.to_string_lossy().into_owned(),
+            source_path: staging_path.to_string_lossy().into_owned(),
 
         traverse_dir(
           command_sender.clone(),
@@ -83,7 +87,7 @@ fn traverse_dir(
   let target_relative_path = source_path
     .strip_prefix(source_base_path)
     .map_err(|err| FSErrors::ReadFileError {
-      source_path: String::from(source_path.to_str().unwrap()),
+      source_path: source_path.to_string_lossy().into_owned(),
       err: io::Error::new(
         ErrorKind::InvalidFilename,
         format!("Failed stripping path prefix: {:?}", err),
@@ -98,20 +102,20 @@ fn traverse_dir(
       .recursive(true)
       .create(&new_target_path)
       .map_err(|err| FSErrors::CreateFileError {
-        target_path: String::from(new_target_path.to_str().unwrap()),
+        target_path: new_target_path.to_string_lossy().into_owned(),
         err,
       })?;
   }
 
   let entries =
     fs::read_dir(source_path).map_err(|err| FSErrors::ReadDirError {
-      source_path: String::from(source_path.to_str().unwrap()),
+      source_path: source_path.to_string_lossy().into_owned(),
       err,
     })?;
 
   for entry in entries {
     let entry = entry.map_err(|err| FSErrors::ReadFileError {
-      source_path: String::from(source_path.to_str().unwrap()),
+      source_path: source_path.to_string_lossy().into_owned(),
       err,
     })?;
     let entry_path = entry.path();
