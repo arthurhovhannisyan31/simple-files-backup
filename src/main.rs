@@ -6,7 +6,7 @@ pub mod modules;
 use modules::backup::backup;
 use modules::config::get_backup_config;
 use modules::config::get_thread_pool_size;
-use modules::constants::FSErrors;
+use modules::constants::AppArror;
 use modules::logs::write_logs;
 use modules::structs::BackupConfig;
 
@@ -27,7 +27,7 @@ fn main() -> io::Result<()> {
     let create_dir_result = DirBuilder::new()
       .recursive(true)
       .create(&target)
-      .map_err(|err| FSErrors::CreateFileError {
+      .map_err(|err| AppArror::CreateFileError {
         target_path: target.to_string_lossy().into_owned(),
         err,
       });

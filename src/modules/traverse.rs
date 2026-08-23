@@ -64,7 +64,7 @@ pub fn traverse_sources(
       // existing backup up front. The swap into `file_target_path` happens
       // only after every copy has completed.
       let mut staging_name = file_name.to_os_string();
-      staging_name.push(".backup");
+      staging_name.push(".backup_staging");
       let staging_path = target.join(&staging_name);
 
       if staging_path.exists() {

@@ -1,21 +1,21 @@
-use std::fs::{File, copy, read_link, remove_file};
+use std::fs::{copy, read_link, remove_file};
 use std::io;
 use std::path::{Path, PathBuf};
 
-use crate::modules::constants::FSErrors;
+use crate::modules::constants::AppArror;
 
 pub fn backup_file(
   source_path: &PathBuf,
   target_path: &PathBuf,
-) -> Result<(), FSErrors> {
+) -> Result<(), AppArror> {
   if target_path.exists() {
-    remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
+    remove_file(target_path).map_err(|err| AppArror::RemoveFileError {
       source_path: target_path.to_string_lossy().into_owned(),
       err,
     })?;
   }
 
-  copy(source_path, target_path).map_err(|err| FSErrors::CopyFileError {
+  copy(source_path, target_path).map_err(|err| AppArror::CopyFileError {
     source_path: source_path.to_string_lossy().into_owned(),
     target_path: target_path.to_string_lossy().into_owned(),
     err,
@@ -43,22 +43,22 @@ pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
 pub fn backup_symlink(
   source_path: &PathBuf,
   target_path: &PathBuf,
-) -> Result<(), FSErrors> {
+) -> Result<(), AppArror> {
   if target_path.exists() {
-    remove_file(target_path).map_err(|err| FSErrors::RemoveFileError {
+    remove_file(target_path).map_err(|err| AppArror::RemoveFileError {
       source_path: target_path.to_string_lossy().into_owned(),
       err,
     })?
   }
 
   let link_path =
-    read_link(source_path).map_err(|err| FSErrors::ReadFileError {
+    read_link(source_path).map_err(|err| AppArror::ReadFileError {
       source_path: source_path.to_string_lossy().into_owned(),
       err,
     })?;
 
   symlink(link_path, target_path).map_err(|err| {
-    FSErrors::CreateSymlinkError {
+    AppArror::CreateSymlinkError {
       source_path: source_path.to_string_lossy().into_owned(),
       target_path: target_path.to_string_lossy().into_owned(),
       err,

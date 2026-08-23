@@ -6,8 +6,7 @@
 
 ## Overview
 
-This is a CLI tool for backing up files, directories and symlinks.
-It is Compatible with `Linux`, `Windows`, `Mac`.
+This is a CLI tool for backing up files, directories and symlinks. It is Compatible with `Linux`, `Windows`, `Mac`.
 
 Please
 see [code validation tests](https://github.com/arthurhovhannisyan31/simple-files-backup/actions/workflows/code-validation.yml)
@@ -23,20 +22,19 @@ for details.
 
 Copies list of source files/directories to back-up folder in multithreaded mode.
 
-The backup operations are distributed between several system threads.
-Main thread does fs traversal, sends backup commands and logs results.
-Spawned threads receive backup commands, copy files and submit results.
-Communication between threads based on [MPSC](https://doc.rust-lang.org/std/sync/mpsc/index.html) channels which allows
-threads receive commands in order, excluding job duplication.
+The backup operations are distributed between several system threads. Main thread does fs traversal, sends backup
+commands and logs results. Spawned threads receive backup commands, copy files and submit results. Communication between
+threads based on [MPSC](https://doc.rust-lang.org/std/sync/mpsc/index.html) channels which allows threads receive
+commands in order, excluding job duplication.
 
 ![img.png](./static/img/system_design.png)
 
 ## Usage
 
 Please find the latest build binaries in
-the [GH Releases](https://github.com/arthurhovhannisyan31/simple-files-backup/releases).
-Download archived binary for your OS and use the `simple-files-backup` file from the `target/release` folder.
-Make sure the binary has sufficient rights to make directories manipulations.
+the [GH Releases](https://github.com/arthurhovhannisyan31/simple-files-backup/releases). Download archived binary for
+your OS and use the `simple-files-backup` file from the `target/release` folder. Make sure the binary has sufficient
+rights to make directories manipulations.
 
 Add a json config with the following format:
 
@@ -48,23 +46,25 @@ log?: String
 ```
 
 The `source` and `target` paths should be existing absolute files/directories paths. Ignore is a regex string which
-includes
-filename and directory name patterns to skip. Each run logs statistics to the `log` file, or creates one if missing.
+includes filename and directory name patterns to skip. Each run logs statistics to the `log` file, or creates one if
+missing.
 
 Config example:
 
 ```
-"ignore": "/(node_modules|.yarn|.next|target|yarn.lock)",
-"source": [
-    "/home/<user>/.config",
-    "/home/<user>/Documents"
-],
-"target": "/data/backup",
-"log": "/home/<user>/log"
+{
+  "target": "/data/backup",
+  "source": [
+    "/path/to/source/file",
+  ],
+  "ignore": "/(node_modules|.yarn|.next|target|yarn.lock)",
+  "log": "/path/lt/logs/file.ext"
+}
+
 ```
 
 ```shell
-    simple-files-backup -c ./config.json
+simple-files-backup -c ./config.json
 ```
 
 ## Stack
