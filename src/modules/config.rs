@@ -91,7 +91,8 @@ pub fn get_thread_pool_size() -> usize {
   });
 
   std::cmp::min(
-    (count.get() as f32 / THREAD_POOL_SHARE_OF_CPU_THREADS).floor() as usize,
+    (count.get() as f32 * THREAD_POOL_SHARE_OF_CPU_THREADS).floor() as usize,
     THREAD_POOL_LIMIT,
   )
+  .max(2)
 }
