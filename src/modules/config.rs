@@ -7,7 +7,7 @@ use clap::Parser;
 use regex::Regex;
 
 use crate::modules::constants::{
-  FSErrors, LOG_FILE_NAME, THREAD_POOL_LIMIT, THREAD_POOL_SHARE_OF_CPU_THREADS,
+  AppArror, LOG_FILE_NAME, THREAD_POOL_LIMIT, THREAD_POOL_SHARE_OF_CPU_THREADS,
 };
 use crate::modules::structs::{BackupConfig, CliArgs, CliConfig};
 
@@ -15,8 +15,8 @@ pub fn get_parsed_config(config_path: PathBuf) -> CliConfig {
   if !config_path.exists() {
     panic!(
       "{:#?}",
-      FSErrors::NotFound {
-        source_path: String::from(config_path.to_str().unwrap()),
+      AppArror::NotFound {
+        source_path: config_path.to_string_lossy().into_owned(),
         err: io::Error::new(ErrorKind::NotFound, "Failed reading config file")
       }
     );
@@ -26,8 +26,8 @@ pub fn get_parsed_config(config_path: PathBuf) -> CliConfig {
     fs::read_to_string(&config_path).unwrap_or_else(|err| {
       panic!(
         "{:#?}",
-        FSErrors::ReadFileError {
-          source_path: String::from(config_path.to_str().unwrap()),
+        AppArror::ReadFileError {
+          source_path: config_path.to_string_lossy().into_owned(),
           err
         }
       );
@@ -37,7 +37,7 @@ pub fn get_parsed_config(config_path: PathBuf) -> CliConfig {
     .unwrap_or_else(|err| {
       panic!(
         "{:#?}",
-        FSErrors::OtherError(anyhow!("Failed parsing config file: {:?}", err))
+        AppArror::OtherError(anyhow!("Failed parsing config file: {:?}", err))
       );
     });
 
@@ -66,7 +66,7 @@ pub fn get_backup_config() -> BackupConfig {
     Regex::new(ignore.as_str()).unwrap_or_else(|err| {
       panic!(
         "{:#?}",
-        FSErrors::OtherError(anyhow!("Failed parsing regex: {}", err))
+        AppArror::OtherError(anyhow!("Failed parsing regex: {}", err))
       )
     })
   });
@@ -83,7 +83,7 @@ pub fn get_thread_pool_size() -> usize {
   let count = thread::available_parallelism().unwrap_or_else(|err| {
     panic!(
       "{:#?}",
-      FSErrors::OtherError(anyhow!(
+      AppArror::OtherError(anyhow!(
         "Failed reading number of threads: {}",
         err
       ))
@@ -91,7 +91,8 @@ pub fn get_thread_pool_size() -> usize {
   });
 
   std::cmp::min(
-    (count.get() as f32 / THREAD_POOL_SHARE_OF_CPU_THREADS).floor() as usize,
+    (count.get() as f32 * THREAD_POOL_SHARE_OF_CPU_THREADS).floor() as usize,
     THREAD_POOL_LIMIT,
   )
+  .max(2)
 }

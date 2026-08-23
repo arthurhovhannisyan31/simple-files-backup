@@ -3,11 +3,11 @@ use std::io;
 use thiserror::Error;
 
 pub const LOG_FILE_NAME: &str = "files-backup-log.txt";
-pub const THREAD_POOL_SHARE_OF_CPU_THREADS: f32 = 0.25;
+pub const THREAD_POOL_SHARE_OF_CPU_THREADS: f32 = 0.5;
 pub const THREAD_POOL_LIMIT: usize = 4;
 
 #[derive(Error, Debug)]
-pub enum FSErrors {
+pub enum AppArror {
   #[error("I/O error occurred")]
   IoError(#[from] io::Error),
   #[error("Failed copying file: `{source_path:?}` `{target_path:?}`")]
